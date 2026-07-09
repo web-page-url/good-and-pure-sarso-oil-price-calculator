@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="anubhav.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Good and Pure Cold Pressed Sarso Oil</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body>
+
+    <div class="droplet d1"></div>
+    <div class="droplet d2"></div>
+    <div class="droplet d3"></div>
+    <div class="droplet d4"></div>
+    <div class="droplet d5"></div>
+
+    <div class="container">
+        <header>
+            <div class="logo-wrap">
+                <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="bottle" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#fff4c2" />
+                            <stop offset="100%" stop-color="#f5b82e" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="24" y="6" width="16" height="8" rx="2" fill="#2d5a3d" />
+                    <path d="M22 14 L42 14 L44 22 L44 56 Q44 60 40 60 L24 60 Q20 60 20 56 L20 22 Z" fill="url(#bottle)"
+                        stroke="#b87a0a" stroke-width="1.5" />
+                    <ellipse cx="32" cy="40" rx="8" ry="10" fill="#d99a1a" opacity="0.5" />
+                    <path d="M28 30 Q32 26 36 30" stroke="#b87a0a" stroke-width="1.5" fill="none"
+                        stroke-linecap="round" />
+                </svg>
+            </div>
+            <h1>Good & Pure <span class="highlight">Cold Pressed</span><br>Sarso Oil</h1>
+            <p class="tagline">Pure goodness, made with <span class="heart">❤</span> for your family</p>
+        </header>
+
+        <!-- ============ CALCULATOR 1: Weight → Price ============ -->
+        <div class="card">
+            <div class="card-title"><span class="emoji">⚖️</span> Calculate Price from Weight</div>
+
+            <div class="field">
+                <label><span class="icon">📦</span> Empty Box Weight</label>
+                <div class="input-wrap">
+                    <input type="number" id="boxWeight" placeholder="Enter in kg (e.g. 0.5)" min="0" step="0.001" />
+                    <span class="unit">KG</span>
+                </div>
+                <div class="unit-hint">💡 Tip: 1000 gram = 1 kg. Enter in kg (e.g. 500g → 0.5 kg)</div>
+                <div class="quick-chips" id="quickChips">
+                    <button class="chip" data-val="0.015">15g<span class="sub">(0.015kg)</span></button>
+                    <button class="chip" data-val="0.050">50g<span class="sub">(0.05kg)</span></button>
+                    <button class="chip" data-val="0.100">100g<span class="sub">(0.1kg)</span></button>
+                    <button class="chip" data-val="0.250">250g<span class="sub">(0.25kg)</span></button>
+                    <button class="chip" data-val="0.500">500g<span class="sub">(0.5kg)</span></button>
+                    <button class="chip" data-val="1">1 kg<span class="sub">(1000g)</span></button>
+                </div>
+            </div>
+
+            <div class="field">
+                <label><span class="icon">⚖️</span> Total Weight (Box + Oil)</label>
+                <div class="input-wrap">
+                    <input type="number" id="totalWeight" placeholder="e.g. 15.0" min="0" step="0.01" />
+                    <span class="unit">KG</span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label><span class="icon">🌿</span> Select Sarso Type</label>
+                <select id="sarsoType">
+                    <option value="220">Black Sarso — ₹220 / kg</option>
+                    <option value="240">Yellow Sarso — ₹240 / kg</option>
+                </select>
+                <div class="rate-chip" id="rateChip">
+                    <span class="dot"></span>
+                    <span id="rateText">Rate: ₹220 per kg</span>
+                </div>
+            </div>
+
+            <div class="error-msg" id="errorMsg"></div>
+
+            <div class="result" id="result">
+                <span class="heart-badge">💛</span>
+                <div class="result-label">Total Price</div>
+                <div class="result-amount">
+                    <span>₹</span><span id="totalPrice">0</span>
+                </div>
+                <div class="breakdown">
+                    <div class="breakdown-item">
+                        <div class="lbl">Oil Weight</div>
+                        <div class="val"><span id="oilWeight">0</span> kg</div>
+                    </div>
+                    <div class="breakdown-item">
+                        <div class="lbl">Rate</div>
+                        <div class="val">₹<span id="rateDisplay">0</span>/kg</div>
+                    </div>
+                </div>
+
+                <div class="calc-steps">
+                    <div class="calc-steps-title">📐 Step-by-Step Calculation</div>
+                    <div class="calc-step" id="step1"></div>
+                    <div class="calc-step" id="step2"></div>
+                    <div class="calc-step final" id="step3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ CALCULATOR 2: Price → Weight (NEW) ============ -->
+        <div class="card budget-card">
+            <div class="card-title"><span class="emoji">💰</span> Calculate Weight from Budget</div>
+
+            <div class="field">
+                <label><span class="icon">₹</span> How much oil do you want to buy?</label>
+                <div class="budget-input-wrap">
+                    <span class="rupee-sign">₹</span>
+                    <input type="number" id="budgetPrice" placeholder="Enter amount (e.g. 200)" min="0" step="1" />
+                </div>
+                <div class="unit-hint">💡 Enter your budget — we'll tell you how much oil you'll get for both Black &
+                    Yellow Sarso</div>
+                <div class="quick-chips" id="budgetChips">
+                    <button class="chip" data-val="100">₹100</button>
+                    <button class="chip" data-val="150">₹150</button>
+                    <button class="chip" data-val="200">₹200</button>
+                    <button class="chip" data-val="250">₹250</button>
+                    <button class="chip" data-val="500">₹500</button>
+                    <button class="chip" data-val="1000">₹1000</button>
+                </div>
+            </div>
+
+            <div class="budget-result-grid" id="budgetResult">
+                <!-- Black Sarso -->
+                <div class="oil-card black">
+                    <div class="oil-card-header">
+                        <div class="oil-type"><span class="oil-dot"></span> Black Sarso</div>
+                        <div class="oil-rate">₹220/kg</div>
+                    </div>
+                    <div class="oil-weight-main">
+                        <span id="blackKg">0</span><span class="unit-big">kg</span>
+                    </div>
+                    <div class="oil-weight-sub">= <strong><span id="blackG">0</span> gram</strong></div>
+                    <div class="oil-calc" id="blackCalc"></div>
+                </div>
+
+                <!-- Yellow Sarso -->
+                <div class="oil-card yellow">
+                    <div class="oil-card-header">
+                        <div class="oil-type"><span class="oil-dot"></span> Yellow Sarso</div>
+                        <div class="oil-rate">₹240/kg</div>
+                    </div>
+                    <div class="oil-weight-main">
+                        <span id="yellowKg">0</span><span class="unit-big">kg</span>
+                    </div>
+                    <div class="oil-weight-sub">= <strong><span id="yellowG">0</span> gram</strong></div>
+                    <div class="oil-calc" id="yellowCalc"></div>
+                </div>
+            </div>
+
+            <div class="budget-hint" id="budgetHint">✨ Enter any amount above to see how much oil you'll get!</div>
+        </div>
+
+        <footer>
+            <span class="leaf">🌱</span> 100% Natural • Cold Pressed • No Preservatives <span class="leaf">🌱</span>
+        </footer>
+    </div>
+    <script src="anubhav.js"></script>
+
+</body>
+
+</html>
