@@ -2,24 +2,85 @@
 // ============ CALCULATOR 1: Weight → Price ============
 const boxInput = document.getElementById('boxWeight');
 const totalInput = document.getElementById('totalWeight');
+const totalUnitToggle = document.getElementById('totalUnitToggle');
 const typeSelect = document.getElementById('sarsoType');
 const rateText = document.getElementById('rateText');
 const result = document.getElementById('result');
 const totalPriceEl = document.getElementById('totalPrice');
 const oilWeightEl = document.getElementById('oilWeight');
 const rateDisplayEl = document.getElementById('rateDisplay');
+const per100gEl = document.getElementById('per100g');
 const errorMsg = document.getElementById('errorMsg');
+const sanityWarning = document.getElementById('sanityWarning');
+const weightHint = document.getElementById('weightHint');
 const step1 = document.getElementById('step1');
 const step2 = document.getElementById('step2');
 const step3 = document.getElementById('step3');
 const quickChips = document.getElementById('quickChips');
+const resetBtn = document.getElementById('resetBtn');
+const langToggle = document.getElementById('langToggle');
+
+const BOX_STORAGE_KEY = 'sarso_boxWeight';
+const TYPE_STORAGE_KEY = 'sarso_type';
+const LANG_STORAGE_KEY = 'sarso_lang';
+
+let totalUnit = 'kg'; // 'kg' or 'g' — which unit the Total Weight field is currently showing
+let currentLang = 'en';
+
+function t(key) {
+    return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key])
+        || TRANSLATIONS.en[key] || key;
+}
+
+function updateTotalPlaceholder() {
+    totalInput.placeholder = `${t('eg')} ${totalUnit === 'g' ? '515' : '0.515'}`;
+}
+
+function restoreLang() {
+    try {
+        const saved = localStorage.getItem(LANG_STORAGE_KEY);
+        if (saved && TRANSLATIONS[saved]) currentLang = saved;
+    } catch (e) { /* ignore */ }
+}
+
+function applyLanguage(lang) {
+    currentLang = TRANSLATIONS[lang] ? lang : 'en';
+    try { localStorage.setItem(LANG_STORAGE_KEY, currentLang); } catch (e) { /* ignore */ }
+
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
+    document.querySelectorAll('.lang-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.lang === currentLang); });
+    document.documentElement.lang = currentLang;
+
+    updateTotalPlaceholder();
+    calculate();
+    calculateBudget();
+}
+
+langToggle.addEventListener('click', (e) => {
+    const btn = e.target.closest('.lang-btn');
+    if (!btn) return;
+    applyLanguage(btn.dataset.lang);
+});
 
 function showError(msg) {
     errorMsg.textContent = msg;
     errorMsg.classList.add('show');
     result.classList.remove('show');
+    weightHint.style.display = 'none';
 }
 function hideError() { errorMsg.classList.remove('show'); }
+
+function showWarning(msg) {
+    sanityWarning.textContent = msg;
+    sanityWarning.classList.add('show');
+}
+function hideWarning() { sanityWarning.classList.remove('show'); }
+
+function updateWeightHint(show) {
+    weightHint.style.display = show ? 'block' : 'none';
+}
 
 function animateNumber(el, target, decimals = 2, duration = 700) {
     const start = parseFloat(el.textContent.replace(/,/g, '')) || 0;
@@ -73,46 +134,106 @@ function fmtPrice(n) {
     return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function getTotalInKg() {
+    const raw = parseFloat(totalInput.value);
+    if (isNaN(raw)) return NaN;
+    return totalUnit === 'g' ? raw / 1000 : raw;
+}
+
+function saveLastValues() {
+    try {
+        if (boxInput.value !== '') localStorage.setItem(BOX_STORAGE_KEY, boxInput.value);
+        localStorage.setItem(TYPE_STORAGE_KEY, typeSelect.value);
+    } catch (e) { /* localStorage unavailable (e.g. private browsing) — ignore */ }
+}
+
+function restoreLastValues() {
+    try {
+        const savedBox = localStorage.getItem(BOX_STORAGE_KEY);
+        const savedType = localStorage.getItem(TYPE_STORAGE_KEY);
+        if (savedBox !== null) boxInput.value = savedBox;
+        if (savedType !== null && Array.from(typeSelect.options).some(o => o.value === savedType)) {
+            typeSelect.value = savedType;
+        }
+    } catch (e) { /* ignore */ }
+}
+
+totalUnitToggle.addEventListener('click', () => {
+    const raw = parseFloat(totalInput.value);
+    if (totalUnit === 'kg') {
+        totalUnit = 'g';
+        totalUnitToggle.textContent = 'G';
+        totalInput.step = '1';
+        if (!isNaN(raw)) totalInput.value = +(raw * 1000).toFixed(3);
+    } else {
+        totalUnit = 'kg';
+        totalUnitToggle.textContent = 'KG';
+        totalInput.step = '0.001';
+        if (!isNaN(raw)) totalInput.value = +(raw / 1000).toFixed(3);
+    }
+    updateTotalPlaceholder();
+    calculate();
+});
+
 let lastTotal = -1;
 function calculate() {
     const box = parseFloat(boxInput.value);
-    const total = parseFloat(totalInput.value);
+    const total = getTotalInKg();
     const rate = parseFloat(typeSelect.value);
     const sarsoName = typeSelect.options[typeSelect.selectedIndex].text.split('—')[0].trim();
 
-    rateText.textContent = `Rate: ₹${rate} per kg`;
+    rateText.textContent = `${t('rateTextPrefix')} ₹${rate} ${t('perKg')}`;
+    saveLastValues();
 
     if (boxInput.value === '' && totalInput.value === '') {
         result.classList.remove('show');
         hideError();
+        hideWarning();
+        updateWeightHint(true);
         return;
     }
 
     if (isNaN(box) || isNaN(total)) {
         result.classList.remove('show');
+        hideError();
+        hideWarning();
+        updateWeightHint(true);
         return;
     }
 
     if (box < 0 || total < 0) {
-        showError('⚠️ Weights cannot be negative');
+        showError(t('errNegative'));
+        hideWarning();
         return;
     }
     if (total <= box) {
-        showError('⚠️ Total weight must be greater than box weight');
+        showError(t('errTotalLessThanBox'));
+        hideWarning();
         return;
     }
 
     hideError();
+    updateWeightHint(false);
+
+    // Soft sanity check: a "kg" value this large next to a tiny box is probably grams
+    if (totalUnit === 'kg' && total > 50 && box < 2) {
+        showWarning(t('warnGrams'));
+    } else {
+        hideWarning();
+    }
+
     const oilWeight = total - box;
     const price = oilWeight * rate;
+    const per100g = rate / 10;
 
     oilWeightEl.textContent = fmt(oilWeight);
     rateDisplayEl.textContent = rate;
+    per100gEl.textContent = fmtPrice(per100g);
     animateNumber(totalPriceEl, price, 2, 700);
 
-    step1.innerHTML = `<span class="num">${fmt(total)}</span><span class="unit-s">kg</span> <span class="op">−</span> <span class="num">${fmt(box)}</span><span class="unit-s">kg</span> <span class="op">=</span> <span class="num">${fmt(oilWeight)}</span><span class="unit-s">kg (oil)</span>`;
+    step1.innerHTML = `<span class="num">${fmt(total)}</span><span class="unit-s">kg</span> <span class="op">−</span> <span class="num">${fmt(box)}</span><span class="unit-s">kg</span> <span class="op">=</span> <span class="num">${fmt(oilWeight)}</span><span class="unit-s">kg ${t('oilSuffix')}</span>`;
     step2.innerHTML = `<span class="num">${fmt(oilWeight)}</span><span class="unit-s">kg</span> <span class="op">×</span> <span class="num">₹${rate}</span><span class="unit-s">/kg</span> <span class="op">=</span> ...`;
-    step3.innerHTML = `💰 Total = <span class="num">₹${fmtPrice(price)}</span> <span class="unit-s">(${sarsoName})</span>`;
+    step3.innerHTML = `💰 ${t('totalWord')} = <span class="num">₹${fmtPrice(price)}</span> <span class="unit-s">(${sarsoName})</span>`;
 
     result.classList.add('show');
 
@@ -135,10 +256,25 @@ quickChips.addEventListener('click', (e) => {
     calculate();
 });
 
+resetBtn.addEventListener('click', () => {
+    boxInput.value = '';
+    totalInput.value = '';
+    if (totalUnit === 'g') {
+        totalUnit = 'kg';
+        totalUnitToggle.textContent = 'KG';
+        totalInput.step = '0.001';
+    }
+    updateTotalPlaceholder();
+    lastTotal = -1;
+    hideWarning();
+    calculate();
+});
+
 boxInput.addEventListener('input', calculate);
 totalInput.addEventListener('input', calculate);
 typeSelect.addEventListener('change', calculate);
-rateText.textContent = `Rate: ₹${typeSelect.value} per kg`;
+
+restoreLastValues();
 
 // ============ CALCULATOR 2: Price → Weight (NEW) ============
 const budgetInput = document.getElementById('budgetPrice');
@@ -149,13 +285,19 @@ const budgetHint = document.getElementById('budgetHint');
 const blackKg = document.getElementById('blackKg');
 const blackG = document.getElementById('blackG');
 const blackCalc = document.getElementById('blackCalc');
+const blackRateDisplay = document.getElementById('blackRateDisplay');
 
 const yellowKg = document.getElementById('yellowKg');
 const yellowG = document.getElementById('yellowG');
 const yellowCalc = document.getElementById('yellowCalc');
+const yellowRateDisplay = document.getElementById('yellowRateDisplay');
 
-const BLACK_RATE = 220;
-const YELLOW_RATE = 240;
+// Single source of truth: read rates from the <select> in Calculator 1 instead of duplicating them here.
+// Matched by option order (not text), so this keeps working regardless of the active language.
+const BLACK_RATE = parseFloat(typeSelect.options[0].value);
+const YELLOW_RATE = parseFloat(typeSelect.options[1].value);
+blackRateDisplay.textContent = `₹${BLACK_RATE}/kg`;
+yellowRateDisplay.textContent = `₹${YELLOW_RATE}/kg`;
 
 function animateBudget(el, target, decimals = 3, duration = 700) {
     const start = parseFloat(el.textContent.replace(/,/g, '')) || 0;
@@ -173,12 +315,17 @@ function animateBudget(el, target, decimals = 3, duration = 700) {
     requestAnimationFrame(tick);
 }
 
+let lastBudgetPrice = -1;
+let budgetConfettiTimer = null;
+
 function calculateBudget() {
     const price = parseFloat(budgetInput.value);
 
     if (budgetInput.value === '' || isNaN(price) || price <= 0) {
         budgetResult.classList.remove('show');
         budgetHint.style.display = 'block';
+        lastBudgetPrice = -1;
+        clearTimeout(budgetConfettiTimer);
         return;
     }
 
@@ -200,8 +347,12 @@ function calculateBudget() {
 
     budgetResult.classList.add('show');
 
-    // little confetti burst
-    launchConfetti();
+    // Debounced + change-guarded so rapid typing doesn't stack up bursts of confetti
+    if (Math.abs(price - lastBudgetPrice) > 0.01) {
+        lastBudgetPrice = price;
+        clearTimeout(budgetConfettiTimer);
+        budgetConfettiTimer = setTimeout(() => launchConfetti(), 300);
+    }
 }
 
 budgetChips.addEventListener('click', (e) => {
@@ -218,3 +369,7 @@ budgetChips.addEventListener('click', (e) => {
 });
 
 budgetInput.addEventListener('input', calculateBudget);
+
+// ============ INIT (after both calculators are wired) ============
+restoreLang();
+applyLanguage(currentLang);

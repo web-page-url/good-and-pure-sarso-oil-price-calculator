@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@300;400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
 </head>
@@ -24,6 +24,10 @@
 
     <div class="container">
         <header>
+            <div class="lang-toggle" id="langToggle">
+                <button type="button" class="lang-btn active" data-lang="en">EN</button>
+                <button type="button" class="lang-btn" data-lang="hi">हिं</button>
+            </div>
             <div class="logo-wrap">
                 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <defs>
@@ -40,21 +44,31 @@
                         stroke-linecap="round" />
                 </svg>
             </div>
-            <h1>Good & Pure <span class="highlight">Cold Pressed</span><br>Sarso Oil</h1>
-            <p class="tagline">Pure goodness, made with <span class="heart">❤</span> for your family</p>
+            <h1><span data-i18n="headerPart1">Good & Pure</span> <span class="highlight"
+                    data-i18n="headerHighlight">Cold Pressed</span><br><span data-i18n="headerPart2">Sarso
+                    Oil</span></h1>
+            <p class="tagline"><span data-i18n="taglinePart1">Pure goodness, made with</span> <span
+                    class="heart">❤</span> <span data-i18n="taglinePart2">for your family</span></p>
         </header>
 
         <!-- ============ CALCULATOR 1: Weight → Price ============ -->
         <div class="card">
-            <div class="card-title"><span class="emoji">⚖️</span> Calculate Price from Weight</div>
+            <div class="card-title">
+                <span class="emoji">⚖️</span> <span data-i18n="card1Title">Calculate Price from Weight</span>
+                <button type="button" class="reset-btn" id="resetBtn" data-i18n-title="resetBtnTitle"
+                    title="Clear this calculator">↺ <span data-i18n="resetBtn">Reset</span></button>
+            </div>
 
             <div class="field">
-                <label><span class="icon">📦</span> Empty Box Weight</label>
+                <label for="boxWeight"><span class="icon">📦</span> <span data-i18n="boxWeightLabel">Empty Box
+                        Weight</span></label>
                 <div class="input-wrap">
-                    <input type="number" id="boxWeight" placeholder="Enter in kg (e.g. 0.5)" min="0" step="0.001" />
+                    <input type="number" id="boxWeight" data-i18n-placeholder="boxWeightPlaceholder"
+                        placeholder="Enter in kg (e.g. 0.5)" min="0" step="0.001" inputmode="decimal" />
                     <span class="unit">KG</span>
                 </div>
-                <div class="unit-hint">💡 Tip: 1000 gram = 1 kg. Enter in kg (e.g. 500g → 0.5 kg)</div>
+                <div class="unit-hint" data-i18n="boxWeightHint">💡 Tip: 1000 gram = 1 kg. Enter in kg (e.g. 500g →
+                    0.5 kg)</div>
                 <div class="quick-chips" id="quickChips">
                     <button class="chip" data-val="0.015">15g<span class="sub">(0.015kg)</span></button>
                     <button class="chip" data-val="0.050">50g<span class="sub">(0.05kg)</span></button>
@@ -66,18 +80,25 @@
             </div>
 
             <div class="field">
-                <label><span class="icon">⚖️</span> Total Weight (Box + Oil)</label>
+                <label for="totalWeight"><span class="icon">⚖️</span> <span data-i18n="totalWeightLabel">Total
+                        Weight (Box + Oil)</span></label>
                 <div class="input-wrap">
-                    <input type="number" id="totalWeight" placeholder="e.g. 15.0" min="0" step="0.01" />
-                    <span class="unit">KG</span>
+                    <input type="number" id="totalWeight" placeholder="e.g. 0.515" min="0" step="0.001"
+                        inputmode="decimal" />
+                    <button type="button" class="unit unit-toggle" id="totalUnitToggle"
+                        data-i18n-title="totalUnitToggleTitle" title="Click to switch between kg and grams">KG</button>
                 </div>
+                <div class="unit-hint" data-i18n="totalWeightHint">💡 Tip: a typical bottle/pouch total is around
+                    100–1500 g (0.1–1.5 kg). Click the unit button to switch between kg and grams.</div>
+                <div class="warning-msg" id="sanityWarning"></div>
             </div>
 
             <div class="field">
-                <label><span class="icon">🌿</span> Select Sarso Type</label>
+                <label for="sarsoType"><span class="icon">🌿</span> <span data-i18n="sarsoTypeLabel">Select Sarso
+                        Type</span></label>
                 <select id="sarsoType">
-                    <option value="220">Black Sarso — ₹220 / kg</option>
-                    <option value="240">Yellow Sarso — ₹240 / kg</option>
+                    <option value="220" data-i18n="optionBlack">Black Sarso — ₹220 / kg</option>
+                    <option value="240" data-i18n="optionYellow">Yellow Sarso — ₹240 / kg</option>
                 </select>
                 <div class="rate-chip" id="rateChip">
                     <span class="dot"></span>
@@ -86,26 +107,32 @@
             </div>
 
             <div class="error-msg" id="errorMsg"></div>
+            <div class="weight-hint" id="weightHint" data-i18n="weightHintDefault">✨ Enter both weights above to see
+                your price!</div>
 
             <div class="result" id="result">
                 <span class="heart-badge">💛</span>
-                <div class="result-label">Total Price</div>
+                <div class="result-label" data-i18n="totalPriceLabel">Total Price</div>
                 <div class="result-amount">
                     <span>₹</span><span id="totalPrice">0</span>
                 </div>
                 <div class="breakdown">
                     <div class="breakdown-item">
-                        <div class="lbl">Oil Weight</div>
+                        <div class="lbl" data-i18n="oilWeightLabel">Oil Weight</div>
                         <div class="val"><span id="oilWeight">0</span> kg</div>
                     </div>
                     <div class="breakdown-item">
-                        <div class="lbl">Rate</div>
+                        <div class="lbl" data-i18n="rateLabel">Rate</div>
                         <div class="val">₹<span id="rateDisplay">0</span>/kg</div>
+                    </div>
+                    <div class="breakdown-item">
+                        <div class="lbl" data-i18n="per100gLabel">Per 100g</div>
+                        <div class="val">₹<span id="per100g">0</span></div>
                     </div>
                 </div>
 
                 <div class="calc-steps">
-                    <div class="calc-steps-title">📐 Step-by-Step Calculation</div>
+                    <div class="calc-steps-title" data-i18n="stepByStepTitle">📐 Step-by-Step Calculation</div>
                     <div class="calc-step" id="step1"></div>
                     <div class="calc-step" id="step2"></div>
                     <div class="calc-step final" id="step3"></div>
@@ -115,16 +142,19 @@
 
         <!-- ============ CALCULATOR 2: Price → Weight (NEW) ============ -->
         <div class="card budget-card">
-            <div class="card-title"><span class="emoji">💰</span> Calculate Weight from Budget</div>
+            <div class="card-title"><span class="emoji">💰</span> <span data-i18n="card2Title">Calculate Weight from
+                    Budget</span></div>
 
             <div class="field">
-                <label><span class="icon">₹</span> How much oil do you want to buy?</label>
+                <label for="budgetPrice"><span class="icon">₹</span> <span data-i18n="budgetLabel">How much oil do
+                        you want to buy?</span></label>
                 <div class="budget-input-wrap">
                     <span class="rupee-sign">₹</span>
-                    <input type="number" id="budgetPrice" placeholder="Enter amount (e.g. 200)" min="0" step="1" />
+                    <input type="number" id="budgetPrice" data-i18n-placeholder="budgetPricePlaceholder"
+                        placeholder="Enter amount (e.g. 200)" min="0" step="1" inputmode="decimal" />
                 </div>
-                <div class="unit-hint">💡 Enter your budget — we'll tell you how much oil you'll get for both Black &
-                    Yellow Sarso</div>
+                <div class="unit-hint" data-i18n="budgetHintTip">💡 Enter your budget — we'll tell you how much oil
+                    you'll get for both Black &amp; Yellow Sarso</div>
                 <div class="quick-chips" id="budgetChips">
                     <button class="chip" data-val="100">₹100</button>
                     <button class="chip" data-val="150">₹150</button>
@@ -139,8 +169,9 @@
                 <!-- Black Sarso -->
                 <div class="oil-card black">
                     <div class="oil-card-header">
-                        <div class="oil-type"><span class="oil-dot"></span> Black Sarso</div>
-                        <div class="oil-rate">₹220/kg</div>
+                        <div class="oil-type"><span class="oil-dot"></span> <span
+                                data-i18n="blackSarsoLabel">Black Sarso</span></div>
+                        <div class="oil-rate" id="blackRateDisplay">₹220/kg</div>
                     </div>
                     <div class="oil-weight-main">
                         <span id="blackKg">0</span><span class="unit-big">kg</span>
@@ -152,8 +183,9 @@
                 <!-- Yellow Sarso -->
                 <div class="oil-card yellow">
                     <div class="oil-card-header">
-                        <div class="oil-type"><span class="oil-dot"></span> Yellow Sarso</div>
-                        <div class="oil-rate">₹240/kg</div>
+                        <div class="oil-type"><span class="oil-dot"></span> <span
+                                data-i18n="yellowSarsoLabel">Yellow Sarso</span></div>
+                        <div class="oil-rate" id="yellowRateDisplay">₹240/kg</div>
                     </div>
                     <div class="oil-weight-main">
                         <span id="yellowKg">0</span><span class="unit-big">kg</span>
@@ -163,13 +195,16 @@
                 </div>
             </div>
 
-            <div class="budget-hint" id="budgetHint">✨ Enter any amount above to see how much oil you'll get!</div>
+            <div class="budget-hint" id="budgetHint" data-i18n="budgetHintDefault">✨ Enter any amount above to see
+                how much oil you'll get!</div>
         </div>
 
         <footer>
-            <span class="leaf">🌱</span> 100% Natural • Cold Pressed • No Preservatives <span class="leaf">🌱</span>
+            <span class="leaf">🌱</span> <span data-i18n="footerText">100% Natural • Cold Pressed • No
+                Preservatives</span> <span class="leaf">🌱</span>
         </footer>
     </div>
+    <script src="translations.js"></script>
     <script src="anubhav.js"></script>
 
 </body>

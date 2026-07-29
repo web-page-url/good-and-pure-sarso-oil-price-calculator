@@ -140,9 +140,46 @@ body {
 }
 
 header {
+    position: relative;
     text-align: center;
     margin-bottom: 28px;
     animation: fadeDown 0.9s ease;
+}
+
+.lang-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(217, 154, 26, 0.35);
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(184, 122, 10, 0.15);
+}
+
+.lang-btn {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--green-deep);
+    background: transparent;
+    border: none;
+    border-radius: 16px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.lang-btn:hover {
+    background: rgba(217, 154, 26, 0.15);
+}
+
+.lang-btn.active {
+    background: linear-gradient(135deg, var(--gold), var(--amber));
+    color: white;
+    box-shadow: 0 2px 6px rgba(217, 154, 26, 0.4);
 }
 
 @keyframes fadeDown {
@@ -281,6 +318,7 @@ h1 .highlight {
 .card-title {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 10px;
     font-family: 'Playfair Display', serif;
     font-size: 1.35rem;
@@ -289,6 +327,29 @@ h1 .highlight {
     margin-bottom: 20px;
     padding-bottom: 14px;
     border-bottom: 2px dashed rgba(217, 154, 26, 0.3);
+}
+
+.reset-btn {
+    margin-left: auto;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--green-deep);
+    background: rgba(45, 90, 61, 0.1);
+    border: 1px solid rgba(45, 90, 61, 0.25);
+    border-radius: 16px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.reset-btn:hover {
+    background: rgba(45, 90, 61, 0.2);
+}
+
+.reset-btn:active {
+    transform: scale(0.95);
 }
 
 .card-title .emoji {
@@ -383,6 +444,25 @@ input[type="number"]::placeholder {
     pointer-events: none;
 }
 
+.unit-toggle {
+    font-family: inherit;
+    border: 1px solid rgba(217, 154, 26, 0.4);
+    cursor: pointer;
+    pointer-events: auto;
+    min-width: 40px;
+    transition: all 0.2s ease;
+}
+
+.unit-toggle:hover {
+    background: linear-gradient(135deg, var(--gold), var(--amber));
+    color: white;
+    border-color: transparent;
+}
+
+.unit-toggle:active {
+    transform: translateY(-50%) scale(0.94);
+}
+
 select {
     appearance: none;
     -webkit-appearance: none;
@@ -401,8 +481,9 @@ select {
 }
 
 .quick-chips .chip {
-    padding: 6px 12px;
-    font-size: 0.78rem;
+    padding: 10px 16px;
+    min-height: 40px;
+    font-size: 0.82rem;
     font-weight: 600;
     color: var(--green-deep);
     background: rgba(255, 255, 255, 0.85);
@@ -549,7 +630,7 @@ select {
     padding-top: 16px;
     border-top: 1px dashed rgba(255, 255, 255, 0.25);
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 10px;
     position: relative;
     z-index: 1;
@@ -658,6 +739,32 @@ select {
 .error-msg.show {
     display: block;
     animation: shake 0.4s ease;
+}
+
+.warning-msg {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: rgba(255, 138, 0, 0.12);
+    border: 1px solid rgba(255, 138, 0, 0.35);
+    border-radius: 10px;
+    color: #b35c00;
+    font-size: 0.82rem;
+    font-weight: 500;
+    display: none;
+}
+
+.warning-msg.show {
+    display: block;
+    animation: shake 0.4s ease;
+}
+
+.weight-hint {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--green);
+    font-style: italic;
+    opacity: 0.85;
 }
 
 @keyframes shake {
